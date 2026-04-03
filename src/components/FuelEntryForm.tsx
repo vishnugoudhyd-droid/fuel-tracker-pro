@@ -76,10 +76,18 @@ export default function FuelEntryForm({ onSubmit, nextSlNo }: Props) {
 
     setSubmitting(true);
     try {
-      const { error } = await supabase.functions.invoke("append-to-sheet", {
-        body: entry,
+      await fetch(SHEET_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          slno: entry.slNo,
+          date: entry.date,
+          site: entry.siteName,
+          fuelType: entry.fuelType,
+          purchased: entry.purchased,
+          issued: entry.issued,
+          balance: entry.balance,
+        }),
       });
-      if (error) throw error;
       onSubmit(entry);
       toast({ title: "Entry saved & synced to Google Sheets!" });
       setPurchased("");
