@@ -25,7 +25,6 @@ export default function FuelTable({ entries }: Props) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <AnimatePresence>
               {entries.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
@@ -38,7 +37,6 @@ export default function FuelTable({ entries }: Props) {
                   key={entry.slNo}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
                   className="border-b border-border hover:bg-muted/50 transition-colors"
                 >
                   <TableCell className="font-medium">{entry.slNo}</TableCell>
@@ -58,7 +56,6 @@ export default function FuelTable({ entries }: Props) {
                   <TableCell className="text-right font-semibold">{entry.balance.toLocaleString("en-IN")}</TableCell>
                 </motion.tr>
               ))}
-            </AnimatePresence>
           </TableBody>
         </Table>
       </div>
