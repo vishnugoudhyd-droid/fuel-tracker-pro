@@ -10,9 +10,9 @@ import {
   DEFAULT_SITES, FUEL_TYPES, formatDateDDMMYYYY, getYesterday,
   getStoredCustomSites, saveCustomSites, type FuelEntry,
 } from "@/lib/fuel-types";
-import { supabase } from "@/integrations/supabase/client";
 import { Plus, Trash2 } from "lucide-react";
 
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbzZed7TqC5VIPIRlBkWXh8nSSifvlivizlL-Yh3VzuI2rcOiORpkY5ueVr_sJ-SYXfK/exec";
 interface Props {
   onSubmit: (entry: FuelEntry) => void;
   nextSlNo: number;
@@ -76,10 +76,18 @@ export default function FuelEntryForm({ onSubmit, nextSlNo }: Props) {
 
     setSubmitting(true);
     try {
-      const { error } = await supabase.functions.invoke("append-to-sheet", {
-        body: entry,
+      await fetch(SHEET_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          slno: entry.slNo,
+          date: entry.date,
+          site: entry.siteName,
+          fuelType: entry.fuelType,
+          purchased: entry.purchased,
+          issued: entry.issued,
+          balance: entry.balance,
+        }),
       });
-      if (error) throw error;
       onSubmit(entry);
       toast({ title: "Entry saved & synced to Google Sheets!" });
       setPurchased("");
