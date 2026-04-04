@@ -4,12 +4,9 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Pencil, Check, X } from "lucide-react";
-import { MODES, syncEditToSheet, type FuelEntry } from "@/lib/fuel-types";
+import { syncEditToSheet, type FuelEntry } from "@/lib/fuel-types";
 
 interface Props {
   entries: FuelEntry[];
@@ -61,10 +58,9 @@ export default function FuelTable({ entries, onEdit }: Props) {
               <TableHead className="font-display font-semibold">SITE NAME</TableHead>
               <TableHead className="font-display font-semibold">FUEL TYPE</TableHead>
               <TableHead className="font-display font-semibold text-right">PURCHASED</TableHead>
-              <TableHead className="font-display font-semibold">PURCHASED THROUGH</TableHead>
               <TableHead className="font-display font-semibold">INDENT NO.</TableHead>
-              <TableHead className="font-display font-semibold">ISSUED THROUGH</TableHead>
-              <TableHead className="font-display font-semibold text-right">ISSUED THROUGH LTRS</TableHead>
+              <TableHead className="font-display font-semibold text-right">ISSUED VIA INDENT</TableHead>
+              <TableHead className="font-display font-semibold text-right">ISSUED VIA BARREL</TableHead>
               <TableHead className="font-display font-semibold text-right">TOTAL ISSUED</TableHead>
               <TableHead className="font-display font-semibold text-right">BALANCE</TableHead>
               <TableHead className="font-display font-semibold text-center">ACTION</TableHead>
@@ -73,7 +69,7 @@ export default function FuelTable({ entries, onEdit }: Props) {
           <TableBody>
             {entries.length === 0 && (
               <TableRow>
-                <TableCell colSpan={12} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={11} className="text-center py-8 text-muted-foreground">
                   No entries yet. Add your first fuel entry above.
                 </TableCell>
               </TableRow>
@@ -97,64 +93,42 @@ export default function FuelTable({ entries, onEdit }: Props) {
                     </span>
                   </TableCell>
 
-                  {/* Purchased */}
                   <TableCell className="text-right">
                     {isEditing ? (
                       <Input type="number" className="w-24 ml-auto" value={d.purchased} onChange={e => setField("purchased", Number(e.target.value))} />
                     ) : entry.purchased.toLocaleString("en-IN")}
                   </TableCell>
 
-                  {/* Purchase Mode */}
                   <TableCell>
                     {isEditing ? (
-                      <Select value={d.purchaseMode} onValueChange={v => setField("purchaseMode", v)}>
-                        <SelectTrigger className="w-28"><SelectValue /></SelectTrigger>
-                        <SelectContent>{MODES.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
-                      </Select>
-                    ) : entry.purchaseMode}
+                      <Input className="w-24" value={d.indentNumber || ""} onChange={e => setField("indentNumber", e.target.value.toUpperCase())} />
+                    ) : (entry.indentNumber || "—")}
                   </TableCell>
 
-                  {/* Indent Number */}
-                  <TableCell>
-                    {isEditing ? (
-                      d.purchaseMode === "INDENT" ? (
-                        <Input className="w-24" value={d.indentNumber || ""} onChange={e => setField("indentNumber", e.target.value.toUpperCase())} />
-                      ) : "—"
-                    ) : (entry.purchaseMode === "INDENT" ? entry.indentNumber || "—" : "—")}
-                  </TableCell>
-
-                  {/* Issued Through */}
-                  <TableCell>
-                    {isEditing ? (
-                      <Select value={d.issuedThrough} onValueChange={v => setField("issuedThrough", v)}>
-                        <SelectTrigger className="w-28"><SelectValue /></SelectTrigger>
-                        <SelectContent>{MODES.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
-                      </Select>
-                    ) : entry.issuedThrough}
-                  </TableCell>
-
-                  {/* Issued Through Ltrs */}
                   <TableCell className="text-right">
                     {isEditing ? (
-                      <Input type="number" className="w-24 ml-auto" value={d.issuedThroughLtrs} onChange={e => setField("issuedThroughLtrs", Number(e.target.value))} />
-                    ) : (entry.issuedThroughLtrs ?? 0).toLocaleString("en-IN")}
+                      <Input type="number" className="w-24 ml-auto" value={d.issuedThroughIndentLtrs} onChange={e => setField("issuedThroughIndentLtrs", Number(e.target.value))} />
+                    ) : (entry.issuedThroughIndentLtrs ?? 0).toLocaleString("en-IN")}
                   </TableCell>
 
-                  {/* Total Issued */}
+                  <TableCell className="text-right">
+                    {isEditing ? (
+                      <Input type="number" className="w-24 ml-auto" value={d.issuedThroughBarrelLtrs} onChange={e => setField("issuedThroughBarrelLtrs", Number(e.target.value))} />
+                    ) : (entry.issuedThroughBarrelLtrs ?? 0).toLocaleString("en-IN")}
+                  </TableCell>
+
                   <TableCell className="text-right">
                     {isEditing ? (
                       <Input type="number" className="w-24 ml-auto" value={d.issued} onChange={e => setField("issued", Number(e.target.value))} />
                     ) : entry.issued.toLocaleString("en-IN")}
                   </TableCell>
 
-                  {/* Balance */}
                   <TableCell className="text-right font-semibold">
                     {isEditing ? (
                       <span>{(Number(d.purchased) - Number(d.issued)).toLocaleString("en-IN")}</span>
                     ) : entry.balance.toLocaleString("en-IN")}
                   </TableCell>
 
-                  {/* Action */}
                   <TableCell className="text-center">
                     {isEditing ? (
                       <div className="flex items-center justify-center gap-1">
