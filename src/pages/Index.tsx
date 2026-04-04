@@ -17,6 +17,12 @@ export default function Index() {
     saveEntries(updated);
   };
 
+  const handleEdit = (updated: FuelEntry) => {
+    const newEntries = entries.map(e => e.slNo === updated.slNo ? updated : e);
+    setEntries(newEntries);
+    saveEntries(newEntries);
+  };
+
   const filtered = useMemo(
     () => siteFilter === "ALL SITES" ? entries : entries.filter(e => e.siteName === siteFilter),
     [entries, siteFilter]
@@ -27,7 +33,6 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="bg-card shadow-sm border-b border-border sticky top-0 z-10">
         <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center gap-3">
           <div className="bg-primary rounded-lg p-2">
@@ -40,20 +45,15 @@ export default function Index() {
       </header>
 
       <main className="container max-w-7xl mx-auto px-4 py-6 space-y-6">
-        {/* Dashboard */}
-        <DashboardCards entries={filtered} />
-
-        {/* Form */}
+        <DashboardCards entries={entries} />
         <FuelEntryForm onSubmit={handleNewEntry} nextSlNo={nextSlNo} />
 
-        {/* Filter + Export */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <SiteFilter value={siteFilter} onChange={setSiteFilter} usedSites={usedSites} />
           <ExportButton entries={filtered} />
         </div>
 
-        {/* Table */}
-        <FuelTable entries={filtered} />
+        <FuelTable entries={filtered} onEdit={handleEdit} />
       </main>
     </div>
   );

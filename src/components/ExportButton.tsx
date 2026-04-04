@@ -15,6 +15,10 @@ export default function ExportButton({ entries }: Props) {
       "Site Name": e.siteName,
       "Fuel Type": e.fuelType,
       "Yesterday Fuel Purchased in Ltrs": e.purchased,
+      "Purchased Through": e.purchaseMode,
+      "Indent Number": e.purchaseMode === "INDENT" ? e.indentNumber : "",
+      "Total Fuel Issued Through": e.issuedThrough,
+      "Issued Through Ltrs": e.issuedThroughLtrs,
       "Yesterday Total Fuel Issued in Ltrs": e.issued,
       "Balance Fuel in Ltrs": e.balance,
     }));
