@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import {
-  DEFAULT_SITES, FUEL_TYPES, MODES, formatDateDDMMYYYY, getYesterday,
+  DEFAULT_SITES, FUEL_TYPES, formatDateDDMMYYYY, getYesterday,
   getStoredCustomSites, saveCustomSites, syncEntryToSheet, type FuelEntry,
 } from "@/lib/fuel-types";
 import { Plus, Trash2 } from "lucide-react";
@@ -28,10 +28,9 @@ export default function FuelEntryForm({ onSubmit, nextSlNo }: Props) {
   const [otherSite, setOtherSite] = useState("");
   const [fuelType, setFuelType] = useState<"PETROL" | "DIESEL">("DIESEL");
   const [purchased, setPurchased] = useState("");
-  const [purchaseMode, setPurchaseMode] = useState<"INDENT" | "BARREL">("BARREL");
   const [indentNumber, setIndentNumber] = useState("");
-  const [issuedThrough, setIssuedThrough] = useState<"INDENT" | "BARREL">("BARREL");
-  const [issuedThroughLtrs, setIssuedThroughLtrs] = useState("");
+  const [issuedThroughIndentLtrs, setIssuedThroughIndentLtrs] = useState("");
+  const [issuedThroughBarrelLtrs, setIssuedThroughBarrelLtrs] = useState("");
   const [issued, setIssued] = useState("");
   const [balance, setBalance] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -66,10 +65,6 @@ export default function FuelEntryForm({ onSubmit, nextSlNo }: Props) {
       toast({ title: "All fields are required", variant: "destructive" });
       return;
     }
-    if (purchaseMode === "INDENT" && !indentNumber.trim()) {
-      toast({ title: "Indent number is required", variant: "destructive" });
-      return;
-    }
 
     const entry: FuelEntry = {
       slNo: nextSlNo,
@@ -77,10 +72,9 @@ export default function FuelEntryForm({ onSubmit, nextSlNo }: Props) {
       siteName: finalSite.toUpperCase(),
       fuelType,
       purchased: Number(purchased),
-      purchaseMode,
-      indentNumber: purchaseMode === "INDENT" ? indentNumber.trim().toUpperCase() : "",
-      issuedThrough,
-      issuedThroughLtrs: Number(issuedThroughLtrs) || 0,
+      indentNumber: indentNumber.trim().toUpperCase(),
+      issuedThroughIndentLtrs: Number(issuedThroughIndentLtrs) || 0,
+      issuedThroughBarrelLtrs: Number(issuedThroughBarrelLtrs) || 0,
       issued: Number(issued),
       balance: Number(balance),
     };
@@ -91,7 +85,7 @@ export default function FuelEntryForm({ onSubmit, nextSlNo }: Props) {
       onSubmit(entry);
       toast({ title: "Entry saved & synced to Google Sheets!" });
       setPurchased(""); setIssued(""); setBalance("");
-      setIndentNumber(""); setIssuedThroughLtrs("");
+      setIndentNumber(""); setIssuedThroughIndentLtrs(""); setIssuedThroughBarrelLtrs("");
     } catch (err: any) {
       console.error(err);
       onSubmit(entry);
@@ -171,35 +165,18 @@ export default function FuelEntryForm({ onSubmit, nextSlNo }: Props) {
         </div>
 
         <div>
-          <Label>Purchased Through</Label>
-          <Select value={purchaseMode} onValueChange={v => setPurchaseMode(v as any)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {MODES.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {purchaseMode === "INDENT" && (
-          <div>
-            <Label>Indent Number</Label>
-            <Input value={indentNumber} onChange={e => setIndentNumber(e.target.value)} placeholder="Enter indent number" />
-          </div>
-        )}
-
-        <div>
-          <Label>Total Fuel Issued Through</Label>
-          <Select value={issuedThrough} onValueChange={v => setIssuedThrough(v as any)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {MODES.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <Label>Indent Number</Label>
+          <Input value={indentNumber} onChange={e => setIndentNumber(e.target.value)} placeholder="Enter indent number (if any)" />
         </div>
 
         <div>
-          <Label>{issuedThrough === "INDENT" ? "Indent Total Ltrs" : "Barrel Total Ltrs"}</Label>
-          <Input type="number" min="0" step="0.01" value={issuedThroughLtrs} onChange={e => setIssuedThroughLtrs(e.target.value)} />
+          <Label>Fuel Issued Through Indent (Ltrs)</Label>
+          <Input type="number" min="0" step="0.01" value={issuedThroughIndentLtrs} onChange={e => setIssuedThroughIndentLtrs(e.target.value)} />
+        </div>
+
+        <div>
+          <Label>Fuel Issued Through Barrel (Ltrs)</Label>
+          <Input type="number" min="0" step="0.01" value={issuedThroughBarrelLtrs} onChange={e => setIssuedThroughBarrelLtrs(e.target.value)} />
         </div>
 
         <div>

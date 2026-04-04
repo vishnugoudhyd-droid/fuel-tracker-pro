@@ -4,10 +4,9 @@ export interface FuelEntry {
   siteName: string;
   fuelType: "PETROL" | "DIESEL";
   purchased: number;
-  purchaseMode: "INDENT" | "BARREL";
-  indentNumber?: string;
-  issuedThrough: "INDENT" | "BARREL";
-  issuedThroughLtrs: number;
+  indentNumber: string;
+  issuedThroughIndentLtrs: number;
+  issuedThroughBarrelLtrs: number;
   issued: number;
   balance: number;
 }
@@ -19,7 +18,6 @@ export const DEFAULT_SITES = [
 ] as const;
 
 export const FUEL_TYPES = ["PETROL", "DIESEL"] as const;
-export const MODES = ["INDENT", "BARREL"] as const;
 
 export function formatDateDDMMYYYY(date: Date): string {
   const d = String(date.getDate()).padStart(2, "0");
@@ -58,13 +56,11 @@ export function saveCustomSites(sites: string[]) {
 export function getStoredEntries(): FuelEntry[] {
   try {
     const raw = JSON.parse(localStorage.getItem("fuelEntries") || "[]");
-    // Migrate old entries without new fields
     return raw.map((e: any) => ({
       ...e,
-      purchaseMode: e.purchaseMode || "BARREL",
       indentNumber: e.indentNumber || "",
-      issuedThrough: e.issuedThrough || "BARREL",
-      issuedThroughLtrs: e.issuedThroughLtrs ?? e.issued ?? 0,
+      issuedThroughIndentLtrs: e.issuedThroughIndentLtrs ?? (e.issuedThrough === "INDENT" ? (e.issuedThroughLtrs ?? 0) : 0),
+      issuedThroughBarrelLtrs: e.issuedThroughBarrelLtrs ?? (e.issuedThrough === "BARREL" ? (e.issuedThroughLtrs ?? 0) : 0),
     }));
   } catch { return []; }
 }
@@ -75,42 +71,32 @@ export function saveEntries(entries: FuelEntry[]) {
 
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbzZed7TqC5VIPIRlBkWXh8nSSifvlivizlL-Yh3VzuI2rcOiORpkY5ueVr_sJ-SYXfK/exec";
 
+function buildPayload(entry: FuelEntry, action: string) {
+  return {
+    slno: entry.slNo,
+    date: entry.date,
+    site: entry.siteName,
+    fuelType: entry.fuelType,
+    purchased: entry.purchased,
+    indentNumber: entry.indentNumber || "",
+    issuedThroughIndentLtrs: entry.issuedThroughIndentLtrs,
+    issuedThroughBarrelLtrs: entry.issuedThroughBarrelLtrs,
+    issued: entry.issued,
+    balance: entry.balance,
+    action,
+  };
+}
+
 export async function syncEntryToSheet(entry: FuelEntry) {
   return fetch(SHEET_URL, {
     method: "POST",
-    body: JSON.stringify({
-      slno: entry.slNo,
-      date: entry.date,
-      site: entry.siteName,
-      fuelType: entry.fuelType,
-      purchased: entry.purchased,
-      purchaseMode: entry.purchaseMode,
-      indentNumber: entry.indentNumber || "",
-      issuedThrough: entry.issuedThrough,
-      issuedThroughLtrs: entry.issuedThroughLtrs,
-      issued: entry.issued,
-      balance: entry.balance,
-      action: "add",
-    }),
+    body: JSON.stringify(buildPayload(entry, "add")),
   });
 }
 
 export async function syncEditToSheet(entry: FuelEntry) {
   return fetch(SHEET_URL, {
     method: "POST",
-    body: JSON.stringify({
-      slno: entry.slNo,
-      date: entry.date,
-      site: entry.siteName,
-      fuelType: entry.fuelType,
-      purchased: entry.purchased,
-      purchaseMode: entry.purchaseMode,
-      indentNumber: entry.indentNumber || "",
-      issuedThrough: entry.issuedThrough,
-      issuedThroughLtrs: entry.issuedThroughLtrs,
-      issued: entry.issued,
-      balance: entry.balance,
-      action: "edit",
-    }),
+    body: JSON.stringify(buildPayload(entry, "edit")),
   });
 }
