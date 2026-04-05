@@ -100,3 +100,34 @@ export async function syncEditToSheet(entry: FuelEntry) {
     body: JSON.stringify(buildPayload(entry, "edit")),
   });
 }
+
+export async function syncDeleteToSheet(slNo: number) {
+  return fetch(SHEET_URL, {
+    method: "POST",
+    body: JSON.stringify({ slNo, action: "delete" }),
+  });
+}
+
+export async function fetchEntriesFromSheet(): Promise<FuelEntry[]> {
+  try {
+    const res = await fetch(SHEET_URL);
+    const json = await res.json();
+    if (json.status === "ok" && Array.isArray(json.data)) {
+      return json.data.map((e: any) => ({
+        slNo: Number(e.slNo) || 0,
+        date: String(e.date || ""),
+        siteName: String(e.siteName || ""),
+        fuelType: e.fuelType === "PETROL" ? "PETROL" : "DIESEL",
+        purchased: Number(e.purchased) || 0,
+        indentNumber: String(e.indentNumber || ""),
+        issuedThroughIndentLtrs: Number(e.issuedThroughIndentLtrs) || 0,
+        issuedThroughBarrelLtrs: Number(e.issuedThroughBarrelLtrs) || 0,
+        issued: Number(e.issued) || 0,
+        balance: Number(e.balance) || 0,
+      }));
+    }
+    return [];
+  } catch {
+    return [];
+  }
+}
