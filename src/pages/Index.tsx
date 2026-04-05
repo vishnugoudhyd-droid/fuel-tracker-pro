@@ -1,15 +1,25 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import logo from "@/assets/logo.png";
 import DashboardCards from "@/components/DashboardCards";
 import FuelEntryForm from "@/components/FuelEntryForm";
 import FuelTable from "@/components/FuelTable";
 import SiteFilter from "@/components/SiteFilter";
 import ExportButton from "@/components/ExportButton";
-import { getStoredEntries, saveEntries, type FuelEntry } from "@/lib/fuel-types";
+import { getStoredEntries, saveEntries, fetchEntriesFromSheet, type FuelEntry } from "@/lib/fuel-types";
 
 export default function Index() {
   const [entries, setEntries] = useState<FuelEntry[]>(getStoredEntries());
   const [siteFilter, setSiteFilter] = useState("ALL SITES");
+
+  // Sync from Google Sheet on load (reflects deletions made in the sheet)
+  useEffect(() => {
+    fetchEntriesFromSheet().then((sheetEntries) => {
+      if (sheetEntries.length > 0) {
+        setEntries(sheetEntries);
+        saveEntries(sheetEntries);
+      }
+    });
+  }, []);
 
   const handleNewEntry = (entry: FuelEntry) => {
     const updated = [...entries, entry];
