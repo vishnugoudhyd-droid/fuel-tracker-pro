@@ -44,21 +44,19 @@ export default function DashboardCards({ entries }: Props) {
     { label: "PETROL PURCHASED", value: petrol.reduce((s, e) => s + e.purchased, 0), icon: Fuel, unit: "Ltrs" },
     { label: "PETROL ISSUED", value: petrol.reduce((s, e) => s + e.issued, 0), icon: Fuel, unit: "Ltrs" },
     { label: "PETROL BALANCE", value: petrol.reduce((s, e) => s + e.balance, 0), icon: Scale, unit: "Ltrs" },
-    { label: "PETROL VIA INDENT", value: petrol.reduce((s, e) => s + e.issuedThroughIndentLtrs, 0), icon: BookOpen, unit: "Ltrs" },
-    { label: "PETROL VIA BARREL", value: petrol.reduce((s, e) => s + e.issuedThroughBarrelLtrs, 0), icon: Package, unit: "Ltrs" },
+    { label: "PETROL THROUGH INDENT", value: petrol.reduce((s, e) => s + e.issuedThroughIndentLtrs, 0), icon: BookOpen, unit: "Ltrs" },
   ];
 
   const dieselCards = [
     { label: "DIESEL PURCHASED", value: diesel.reduce((s, e) => s + e.purchased, 0), icon: Droplets, unit: "Ltrs" },
     { label: "DIESEL ISSUED", value: diesel.reduce((s, e) => s + e.issued, 0), icon: Droplets, unit: "Ltrs" },
     { label: "DIESEL BALANCE", value: diesel.reduce((s, e) => s + e.balance, 0), icon: Scale, unit: "Ltrs" },
-    { label: "DIESEL VIA INDENT", value: diesel.reduce((s, e) => s + e.issuedThroughIndentLtrs, 0), icon: BookOpen, unit: "Ltrs" },
-    { label: "DIESEL VIA BARREL", value: diesel.reduce((s, e) => s + e.issuedThroughBarrelLtrs, 0), icon: Package, unit: "Ltrs" },
+    { label: "DIESEL THROUGH INDENT", value: diesel.reduce((s, e) => s + e.issuedThroughIndentLtrs, 0), icon: BookOpen, unit: "Ltrs" },
+    { label: "DIESEL THROUGH BARREL", value: diesel.reduce((s, e) => s + e.issuedThroughBarrelLtrs, 0), icon: Package, unit: "Ltrs" },
   ];
 
   return (
     <div className="space-y-4">
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <Popover>
           <PopoverTrigger asChild>
@@ -86,12 +84,10 @@ export default function DashboardCards({ entries }: Props) {
         </Select>
       </div>
 
-      {/* Cards: Petrol left, Diesel right */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Petrol Column */}
         <div className="space-y-3">
           <h3 className="text-sm font-display font-bold tracking-wide text-fuel-petrol">PETROL</h3>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             {petrolCards.map((card, i) => (
               <motion.div
                 key={card.label}
@@ -115,10 +111,9 @@ export default function DashboardCards({ entries }: Props) {
           </div>
         </div>
 
-        {/* Diesel Column */}
         <div className="space-y-3">
           <h3 className="text-sm font-display font-bold tracking-wide text-fuel-diesel">DIESEL</h3>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             {dieselCards.map((card, i) => (
               <motion.div
                 key={card.label}
@@ -143,7 +138,6 @@ export default function DashboardCards({ entries }: Props) {
         </div>
       </div>
 
-      {/* Total Entries */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}

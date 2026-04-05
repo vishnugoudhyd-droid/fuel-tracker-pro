@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Fuel } from "lucide-react";
+import logo from "@/assets/logo.png";
 import DashboardCards from "@/components/DashboardCards";
 import FuelEntryForm from "@/components/FuelEntryForm";
 import FuelTable from "@/components/FuelTable";
@@ -34,13 +34,16 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-card shadow-sm border-b border-border sticky top-0 z-10">
-        <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center gap-3">
-          <div className="bg-primary rounded-lg p-2">
-            <Fuel className="w-6 h-6 text-primary-foreground" />
+        <div className="container max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
+          <img src={logo} alt="SKPPL Logo" className="h-12 w-auto" />
+          <div>
+            <h1 className="text-lg md:text-xl font-display font-bold text-foreground leading-tight">
+              SRI KEERTHI PROJECTS PVT. LTD.
+            </h1>
+            <p className="text-xs md:text-sm text-muted-foreground font-medium tracking-wide">
+              FUEL CONSUMPTION MANAGEMENT SYSTEM
+            </p>
           </div>
-          <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">
-            Fuel Management System
-          </h1>
         </div>
       </header>
 
