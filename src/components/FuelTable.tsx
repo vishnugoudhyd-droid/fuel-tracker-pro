@@ -30,6 +30,7 @@ export default function FuelTable({ entries, onEdit }: Props) {
 
   const saveEdit = async () => {
     const updated = { ...editData } as FuelEntry;
+    updated.issued = (updated.issuedThroughIndentLtrs || 0) + (updated.issuedThroughBarrelLtrs || 0);
     updated.balance = updated.purchased - updated.issued;
     try {
       await syncEditToSheet(updated);
@@ -57,12 +58,12 @@ export default function FuelTable({ entries, onEdit }: Props) {
               <TableHead className="font-display font-semibold">DATE</TableHead>
               <TableHead className="font-display font-semibold">SITE NAME</TableHead>
               <TableHead className="font-display font-semibold">FUEL TYPE</TableHead>
-              <TableHead className="font-display font-semibold text-right">PURCHASED</TableHead>
+              <TableHead className="font-display font-semibold text-right">FUEL PURCHASED (LTRS)</TableHead>
               <TableHead className="font-display font-semibold">INDENT NO.</TableHead>
-              <TableHead className="font-display font-semibold text-right">ISSUED VIA INDENT</TableHead>
-              <TableHead className="font-display font-semibold text-right">ISSUED VIA BARREL</TableHead>
-              <TableHead className="font-display font-semibold text-right">TOTAL ISSUED</TableHead>
-              <TableHead className="font-display font-semibold text-right">BALANCE</TableHead>
+              <TableHead className="font-display font-semibold text-right">FUEL ISSUED THROUGH INDENT (LTRS)</TableHead>
+              <TableHead className="font-display font-semibold text-right">FUEL ISSUED THROUGH BARREL (LTRS)</TableHead>
+              <TableHead className="font-display font-semibold text-right">TOTAL FUEL ISSUED (LTRS)</TableHead>
+              <TableHead className="font-display font-semibold text-right">BALANCE FUEL (LTRS)</TableHead>
               <TableHead className="font-display font-semibold text-center">ACTION</TableHead>
             </TableRow>
           </TableHeader>
@@ -119,13 +120,13 @@ export default function FuelTable({ entries, onEdit }: Props) {
 
                   <TableCell className="text-right">
                     {isEditing ? (
-                      <Input type="number" className="w-24 ml-auto" value={d.issued} onChange={e => setField("issued", Number(e.target.value))} />
+                      <span>{((Number(d.issuedThroughIndentLtrs) || 0) + (Number(d.issuedThroughBarrelLtrs) || 0)).toLocaleString("en-IN")}</span>
                     ) : entry.issued.toLocaleString("en-IN")}
                   </TableCell>
 
                   <TableCell className="text-right font-semibold">
                     {isEditing ? (
-                      <span>{(Number(d.purchased) - Number(d.issued)).toLocaleString("en-IN")}</span>
+                      <span>{(Number(d.purchased) - ((Number(d.issuedThroughIndentLtrs) || 0) + (Number(d.issuedThroughBarrelLtrs) || 0))).toLocaleString("en-IN")}</span>
                     ) : entry.balance.toLocaleString("en-IN")}
                   </TableCell>
 

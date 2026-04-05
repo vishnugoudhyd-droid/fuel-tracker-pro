@@ -10,16 +10,16 @@ interface Props {
 export default function ExportButton({ entries }: Props) {
   const handleExport = () => {
     const data = entries.map(e => ({
-      "Sl.No.": e.slNo,
-      "Date": e.date,
-      "Site Name": e.siteName,
-      "Fuel Type": e.fuelType,
-      "Yesterday Fuel Purchased in Ltrs": e.purchased,
-      "Indent Number": e.indentNumber || "",
-      "Issued Through Indent Ltrs": e.issuedThroughIndentLtrs,
-      "Issued Through Barrel Ltrs": e.issuedThroughBarrelLtrs,
-      "Yesterday Total Fuel Issued in Ltrs": e.issued,
-      "Balance Fuel in Ltrs": e.balance,
+      "SL.NO.": e.slNo,
+      "DATE": e.date,
+      "SITE NAME": e.siteName,
+      "FUEL TYPE": e.fuelType,
+      "FUEL PURCHASED (LTRS)": e.purchased,
+      "INDENT NO.": e.indentNumber || "",
+      "FUEL ISSUED THROUGH INDENT (LTRS)": e.issuedThroughIndentLtrs,
+      "FUEL ISSUED THROUGH BARREL (LTRS)": e.issuedThroughBarrelLtrs,
+      "TOTAL FUEL ISSUED (LTRS)": e.issued,
+      "BALANCE FUEL (LTRS)": e.balance,
     }));
 
     const ws = XLSX.utils.json_to_sheet(data);

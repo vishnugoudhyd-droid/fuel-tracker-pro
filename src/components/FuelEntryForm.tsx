@@ -31,9 +31,10 @@ export default function FuelEntryForm({ onSubmit, nextSlNo }: Props) {
   const [indentNumber, setIndentNumber] = useState("");
   const [issuedThroughIndentLtrs, setIssuedThroughIndentLtrs] = useState("");
   const [issuedThroughBarrelLtrs, setIssuedThroughBarrelLtrs] = useState("");
-  const [issued, setIssued] = useState("");
   const [balance, setBalance] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const computedIssued = (Number(issuedThroughIndentLtrs) || 0) + (Number(issuedThroughBarrelLtrs) || 0);
 
   const handleAddCustomSite = () => {
     const name = otherSite.trim().toUpperCase();
@@ -61,10 +62,12 @@ export default function FuelEntryForm({ onSubmit, nextSlNo }: Props) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const finalSite = siteName === "OTHER" ? otherSite.trim().toUpperCase() : siteName;
-    if (!finalSite || !date || !purchased || !issued || !balance) {
+    if (!finalSite || !date || !purchased || !balance) {
       toast({ title: "All fields are required", variant: "destructive" });
       return;
     }
+
+    const totalIssued = (Number(issuedThroughIndentLtrs) || 0) + (Number(issuedThroughBarrelLtrs) || 0);
 
     const entry: FuelEntry = {
       slNo: nextSlNo,
@@ -75,7 +78,7 @@ export default function FuelEntryForm({ onSubmit, nextSlNo }: Props) {
       indentNumber: indentNumber.trim().toUpperCase(),
       issuedThroughIndentLtrs: Number(issuedThroughIndentLtrs) || 0,
       issuedThroughBarrelLtrs: Number(issuedThroughBarrelLtrs) || 0,
-      issued: Number(issued),
+      issued: totalIssued,
       balance: Number(balance),
     };
 
@@ -84,7 +87,7 @@ export default function FuelEntryForm({ onSubmit, nextSlNo }: Props) {
       await syncEntryToSheet(entry);
       onSubmit(entry);
       toast({ title: "Entry saved & synced to Google Sheets!" });
-      setPurchased(""); setIssued(""); setBalance("");
+      setPurchased(""); setBalance("");
       setIndentNumber(""); setIssuedThroughIndentLtrs(""); setIssuedThroughBarrelLtrs("");
     } catch (err: any) {
       console.error(err);
@@ -97,12 +100,20 @@ export default function FuelEntryForm({ onSubmit, nextSlNo }: Props) {
 
   const handlePurchasedChange = (val: string) => {
     setPurchased(val);
-    if (val && issued) setBalance(String(Number(val) - Number(issued)));
+    const totalIssued = (Number(issuedThroughIndentLtrs) || 0) + (Number(issuedThroughBarrelLtrs) || 0);
+    if (val) setBalance(String(Number(val) - totalIssued));
   };
 
-  const handleIssuedChange = (val: string) => {
-    setIssued(val);
-    if (purchased && val) setBalance(String(Number(purchased) - Number(val)));
+  const handleIndentLtrsChange = (val: string) => {
+    setIssuedThroughIndentLtrs(val);
+    const totalIssued = (Number(val) || 0) + (Number(issuedThroughBarrelLtrs) || 0);
+    if (purchased) setBalance(String(Number(purchased) - totalIssued));
+  };
+
+  const handleBarrelLtrsChange = (val: string) => {
+    setIssuedThroughBarrelLtrs(val);
+    const totalIssued = (Number(issuedThroughIndentLtrs) || 0) + (Number(val) || 0);
+    if (purchased) setBalance(String(Number(purchased) - totalIssued));
   };
 
   return (
@@ -160,7 +171,7 @@ export default function FuelEntryForm({ onSubmit, nextSlNo }: Props) {
         </div>
 
         <div>
-          <Label>Yesterday Fuel Purchased (Ltrs)</Label>
+          <Label>Fuel Purchased (Ltrs)</Label>
           <Input type="number" min="0" step="0.01" value={purchased} onChange={e => handlePurchasedChange(e.target.value)} />
         </div>
 
@@ -171,17 +182,17 @@ export default function FuelEntryForm({ onSubmit, nextSlNo }: Props) {
 
         <div>
           <Label>Fuel Issued Through Indent (Ltrs)</Label>
-          <Input type="number" min="0" step="0.01" value={issuedThroughIndentLtrs} onChange={e => setIssuedThroughIndentLtrs(e.target.value)} />
+          <Input type="number" min="0" step="0.01" value={issuedThroughIndentLtrs} onChange={e => handleIndentLtrsChange(e.target.value)} />
         </div>
 
         <div>
           <Label>Fuel Issued Through Barrel (Ltrs)</Label>
-          <Input type="number" min="0" step="0.01" value={issuedThroughBarrelLtrs} onChange={e => setIssuedThroughBarrelLtrs(e.target.value)} />
+          <Input type="number" min="0" step="0.01" value={issuedThroughBarrelLtrs} onChange={e => handleBarrelLtrsChange(e.target.value)} />
         </div>
 
         <div>
-          <Label>Yesterday Total Fuel Issued (Ltrs)</Label>
-          <Input type="number" min="0" step="0.01" value={issued} onChange={e => handleIssuedChange(e.target.value)} />
+          <Label>Total Fuel Issued (Ltrs)</Label>
+          <Input type="number" value={computedIssued} readOnly className="bg-muted" />
         </div>
 
         <div>
